@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor
@@ -13,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 public class PostDto {
     private List<FoodDto> posts;
+    private Date createdDate;
+    private Date acceptedDate;
     private String location;
     private Boolean served;
 }

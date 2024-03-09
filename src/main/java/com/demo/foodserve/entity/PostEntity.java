@@ -5,8 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
+
+import java.util.Date;
 import java.util.List;
 
 
@@ -24,6 +25,8 @@ public class PostEntity {
     @JoinColumn(name = "location_id")
     private LocationEntity location;
     private Boolean served;
+    private Date createdDate;
+    private Date acceptedDate;
     private String phoneNumber;
     private String email;
     private Integer donor_Id;

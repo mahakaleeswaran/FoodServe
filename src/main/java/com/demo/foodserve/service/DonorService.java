@@ -15,6 +15,8 @@ import com.demo.foodserve.entity.PostEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class DonorService {
     @Autowired
@@ -30,7 +32,8 @@ public class DonorService {
         String[] address=donorDto.getAddress().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
-        donorRepository.save(DonorEntity.builder().name(donorDto.getName()).email(donorDto.getEmail()).organization(donorDto.getOrganization()).location(locationEntity).phoneNumber(donorDto.getPhoneNumber()).build());
+        Date date = new Date();
+        donorRepository.save(DonorEntity.builder().registeredDate(date).name(donorDto.getName()).email(donorDto.getEmail()).organization(donorDto.getOrganization()).location(locationEntity).phoneNumber(donorDto.getPhoneNumber()).build());
         return donorDto;
     }
 
@@ -45,7 +48,8 @@ public class DonorService {
         String[] address=postdto.getLocation().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
-        PostEntity postEntity = postRepository.save(PostEntity.builder().location(locationEntity).reciever_id(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor_Id(id).build());
+        Date date = new Date();
+        PostEntity postEntity = postRepository.save(PostEntity.builder().createdDate(date).location(locationEntity).reciever_id(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor_Id(id).build());
         foodRepository.saveAll(postdto.getPosts().stream().map((post)-> FoodEntity.builder().post_Id(postEntity.getPostId()).foodName(post.getFoodName()).quantity(post.getQuantity()).build()).toList());
         return postdto;
     }

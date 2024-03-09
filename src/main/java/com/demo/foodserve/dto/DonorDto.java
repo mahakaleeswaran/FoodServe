@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 @AllArgsConstructor
 @Data
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DonorDto {
     private String name;
+    private Date registeredDate;
     private String organization;
     private List<PostDto> posts;
     private String phoneNumber;

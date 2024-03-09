@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor
@@ -19,6 +20,7 @@ public class DonorEntity {
     @Column(name = "donor_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer donor_Id;
+    private Date registeredDate;
     private String name;
     private String organization;
     private String phoneNumber;

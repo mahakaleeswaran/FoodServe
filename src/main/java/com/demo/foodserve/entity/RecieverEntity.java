@@ -1,13 +1,13 @@
 package com.demo.foodserve.entity;
 
-import com.demo.foodserve.dto.PostDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
+
+import java.util.Date;
 import java.util.List;
 @AllArgsConstructor
 @Data
@@ -21,6 +21,7 @@ public class RecieverEntity {
     private Integer reciever_id;
     private String name;
     private String organization;
+    private Date registeredDate;
     private String phoneNumber;
     private String email;
     @OneToOne

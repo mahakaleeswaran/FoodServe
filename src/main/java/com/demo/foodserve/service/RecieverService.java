@@ -6,11 +6,9 @@ import com.demo.foodserve.dto.*;
 import com.demo.foodserve.dto.RecieverDto;
 import com.demo.foodserve.entity.*;
 import com.demo.foodserve.entity.RecieverEntity;
-import com.demo.foodserve.entity.RecieverEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import java.util.Date;
 
 @Component
 public class RecieverService {
@@ -26,7 +24,8 @@ public class RecieverService {
         String[] address=recieverDto.getAddress().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
-        recieverRepository.save(RecieverEntity.builder().location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
+        Date date = new Date();
+        recieverRepository.save(RecieverEntity.builder().registeredDate(date).location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
         return recieverDto;
     }
 
@@ -39,6 +38,8 @@ public class RecieverService {
     public PostDto acceptPost(Integer id, Integer postId) {
         PostEntity postEntity = postRepository.findById(postId).orElse(null);
         postEntity.setReciever_id(id);
+        Date date=new Date();
+        postEntity.setAcceptedDate(date);
         postEntity.setServed(true);
         postRepository.save(postEntity);
         LocationEntity locationEntity=postEntity.getLocation();
