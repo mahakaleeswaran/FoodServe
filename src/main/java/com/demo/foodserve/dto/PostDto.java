@@ -14,8 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class PostDto {
     private List<FoodDto> posts;
-    private Date createdDate;
-    private Date acceptedDate;
     private String location;
     private Boolean served;
 }
