@@ -6,7 +6,6 @@ import com.demo.foodserve.Repository.LocationRepository;
 import com.demo.foodserve.Repository.PostRepository;
 import com.demo.foodserve.dto.DonorDto;
 import com.demo.foodserve.dto.FoodDto;
-import com.demo.foodserve.dto.LocationDto;
 import com.demo.foodserve.dto.PostDto;
 import com.demo.foodserve.entity.DonorEntity;
 import com.demo.foodserve.entity.FoodEntity;

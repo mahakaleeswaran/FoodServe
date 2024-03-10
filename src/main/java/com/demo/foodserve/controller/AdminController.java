@@ -1,13 +1,9 @@
 package com.demo.foodserve.controller;
-import com.demo.foodserve.dto.DateDto;
-import com.demo.foodserve.dto.DonorDto;
-import com.demo.foodserve.dto.PostDto;
-import com.demo.foodserve.dto.RecieverDto;
+import com.demo.foodserve.dto.*;
 import com.demo.foodserve.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 
@@ -41,6 +37,11 @@ public class AdminController {
     @GetMapping("/getAllRecievers")
     public List<RecieverDto> getAllRecievers(){
         return adminService.getAllRecievers();
+    }
+
+    @GetMapping("/RecieverOnLocation")
+    public List<RecieverDto> getAllRecieversBasedOnLocation(@RequestBody LocationDto locationDto){
+        return adminService.getAllRecieversBasedOnLocation(locationDto);
     }
 
 }

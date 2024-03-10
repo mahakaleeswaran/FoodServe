@@ -1,6 +1,5 @@
 package com.demo.foodserve.controller;
-
-import com.demo.foodserve.dto.DonorDto;
+import com.demo.foodserve.dto.LocationDto;
 import com.demo.foodserve.dto.PostDto;
 import com.demo.foodserve.dto.RecieverDto;
 import com.demo.foodserve.service.RecieverService;
@@ -61,6 +60,10 @@ public class RecieverController {
         return recieverService.getRecieverDetails(id);
     }
 
+    @GetMapping("/{id}/getPostsBasedOnLocation")
+    public List<PostDto> getPostsBasedOnLocation(@PathVariable Integer id, @RequestBody LocationDto locationDto){
+        return recieverService.getAllPostsBasedOnLocation(id,locationDto);
+    }
 
     @DeleteMapping("/{id}/delete")
     public RecieverDto  deleteDonor(@PathVariable Integer id){
