@@ -7,10 +7,7 @@ import com.demo.foodserve.Repository.PostRepository;
 import com.demo.foodserve.dto.DonorDto;
 import com.demo.foodserve.dto.FoodDto;
 import com.demo.foodserve.dto.PostDto;
-import com.demo.foodserve.entity.DonorEntity;
-import com.demo.foodserve.entity.FoodEntity;
-import com.demo.foodserve.entity.LocationEntity;
-import com.demo.foodserve.entity.PostEntity;
+import com.demo.foodserve.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,15 +29,49 @@ public class DonorService {
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
         Date date = new Date();
-        donorRepository.save(DonorEntity.builder().registeredDate(date).name(donorDto.getName()).email(donorDto.getEmail()).organization(donorDto.getOrganization()).location(locationEntity).phoneNumber(donorDto.getPhoneNumber()).build());
+        DonorEntity donorEntity = donorRepository.save(DonorEntity.builder().userName(donorDto.getUsername()).registeredDate(date).name(donorDto.getName()).email(donorDto.getEmail()).organization(donorDto.getOrganization()).location(locationEntity).phoneNumber(donorDto.getPhoneNumber()).build());
+        donorDto.setUsername(donorEntity.getUserName());
+        donorDto.setId(donorEntity.getDonor_Id());
         return donorDto;
     }
 
     public DonorDto getDonorDetails(Integer id) {
-        DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
-        LocationEntity locationEntity=donorEntity.getLocation();
-        return DonorDto.builder().address(locationEntity.getDoorNo()+","+locationEntity.getStreet()+","+locationEntity.getArea()+","+locationEntity.getTown()+","+locationEntity.getDistrict()+","+locationEntity.getState()+","+locationEntity.getZipcode()).name(donorEntity.getName()).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).organization(donorEntity.getOrganization()).posts(donorEntity.getPostEntity().stream().map((post)->PostDto.builder().location(post.getLocation().getDoorNo()+","+post.getLocation().getStreet()+","+post.getLocation().getArea()+","+post.getLocation().getTown()+","+post.getLocation().getDistrict()+","+post.getLocation().getState()+","+post.getLocation().getZipcode()).served(post.getServed()).posts(post.getFoodEntities().stream().map((food)-> FoodDto.builder().foodName(food.getFoodName()).quantity(food.getQuantity()).build()).toList()).build()).toList()).build();
+        DonorEntity donorEntity = donorRepository.findById(id).orElse(new DonorEntity());
+        LocationEntity locationEntity = donorEntity.getLocation();
+
+        return DonorDto.builder()
+                .username(donorEntity.getUserName())
+                .id(donorEntity.getDonor_Id())
+                .address(locationEntity != null ? locationEntity.getDoorNo() + "," + locationEntity.getStreet() + "," + locationEntity.getArea() + "," +
+                        locationEntity.getTown() + "," + locationEntity.getDistrict() + "," + locationEntity.getState() + "," + locationEntity.getZipcode() : "")
+                .name(donorEntity.getName())
+                .email(donorEntity.getEmail())
+                .phoneNumber(donorEntity.getPhoneNumber())
+                .organization(donorEntity.getOrganization())
+                .posts(donorEntity.getPostEntity().stream()
+                        .map(post -> {
+                            RecieverEntity receiver = post.getReciever();
+                            if (receiver == null) {
+                                receiver = new RecieverEntity();
+                            }
+                            return PostDto.builder()
+                                    .receiverName(receiver.getName())
+                                    .receiverEmail(receiver.getEmail())
+                                    .receiverPhoneNumber(receiver.getPhoneNumber())
+                                    .createdDate(post.getCreatedDate())
+                                    .location(post.getLocation().getDoorNo() + "," + post.getLocation().getStreet() + "," + post.getLocation().getArea() + "," +
+                                            post.getLocation().getTown() + "," + post.getLocation().getDistrict() + "," + post.getLocation().getState() + "," +
+                                            post.getLocation().getZipcode())
+                                    .served(post.getServed())
+                                    .posts(post.getFoodEntities().stream()
+                                            .map(food -> FoodDto.builder().foodName(food.getFoodName()).quantity(food.getQuantity()).build())
+                                            .toList())
+                                    .build();
+                        })
+                        .toList())
+                .build();
     }
+
 
     public PostDto putPost(Integer id, PostDto postdto) {
         DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
@@ -48,7 +79,7 @@ public class DonorService {
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
         Date date = new Date();
-        PostEntity postEntity = postRepository.save(PostEntity.builder().createdDate(date).location(locationEntity).reciever_id(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor_Id(id).build());
+        PostEntity postEntity = postRepository.save(PostEntity.builder().createdDate(date).location(locationEntity).reciever(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor(donorEntity).build());
         foodRepository.saveAll(postdto.getPosts().stream().map((post)-> FoodEntity.builder().post_Id(postEntity.getPostId()).foodName(post.getFoodName()).quantity(post.getQuantity()).build()).toList());
         return postdto;
     }
@@ -64,44 +95,6 @@ public class DonorService {
         donorEntity.setEmail(donorDto.getEmail());
         donorEntity.setOrganization(donorDto.getOrganization());
         donorEntity.setPhoneNumber(donorDto.getPhoneNumber());
-        donorRepository.save(donorEntity);
-        return getDonorDetails(id);
-    }
-
-    public DonorDto updateName(Integer id, String name) {
-        DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
-        donorEntity.setName(name);
-        donorRepository.save(donorEntity);
-        return getDonorDetails(id);
-    }
-
-    public DonorDto updateAddress(Integer id, String updateaddress) {
-        DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
-        String[] address=updateaddress.split(",");
-        LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
-        locationRepository.save(locationEntity);
-        donorEntity.setLocation(locationEntity);
-        donorRepository.save(donorEntity);
-        return getDonorDetails(id);
-    }
-
-    public DonorDto updatePhoneNumber(Integer id, String number) {
-        DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
-        donorEntity.setPhoneNumber(number);
-        donorRepository.save(donorEntity);
-        return getDonorDetails(id);
-    }
-
-    public DonorDto updateOrganization(Integer id, String organization) {
-        DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
-        donorEntity.setOrganization(organization);
-        donorRepository.save(donorEntity);
-        return getDonorDetails(id);
-    }
-
-    public DonorDto updateEmail(Integer id, String email) {
-        DonorEntity donorEntity=donorRepository.findById(id).orElse(new DonorEntity());
-        donorEntity.setEmail(email);
         donorRepository.save(donorEntity);
         return getDonorDetails(id);
     }

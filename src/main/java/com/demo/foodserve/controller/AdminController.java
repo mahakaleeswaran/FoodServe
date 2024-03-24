@@ -44,4 +44,32 @@ public class AdminController {
         return adminService.getAllRecieversBasedOnLocation(locationDto);
     }
 
+    @PostMapping("/register")
+    public String register(@RequestBody CredentialsDto credentialsDto){
+        return adminService.register(credentialsDto);
+    }
+
+    @GetMapping("get")
+    public List<CredentialsDto> getAllAccounts(){
+        return adminService.getAllAccounts();
+    }
+
+    @PostMapping("/feedBack")
+    public  FeedBackDto postFeedBack(@RequestBody FeedBackDto feedBackDto){
+        return adminService.postFeedBack(feedBackDto);
+    }
+
+    @GetMapping("/getAllfeedBacks")
+    public List<FeedBackDto> getAllFeedBackDto(){
+        return adminService.getAllFeedBackDto();
+    }
+
+    @GetMapping("/getAllCounts")
+    public CountDto getAllCounts(){
+        return adminService.getAllCount();
+    }
+
+    @PostMapping("/getUserId")
+    public LoginDto getUserId(@RequestBody LoginDto loginDto){return adminService.getUserId(loginDto);}
+
 }

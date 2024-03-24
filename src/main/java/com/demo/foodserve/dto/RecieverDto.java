@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RecieverDto {
     private String name;
+    private String username;
     private String organization;
     private List<PostDto> posts;
     private String phoneNumber;

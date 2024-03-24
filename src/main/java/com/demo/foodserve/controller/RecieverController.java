@@ -20,7 +20,7 @@ public class RecieverController {
         return recieverService.register(recieverDto);
     }
 
-    @PatchMapping("/{id}/{postId}/accept")
+    @GetMapping("/{id}/{postId}/accept")
     public PostDto acceptPost(@PathVariable Integer id, @PathVariable Integer postId){
         return recieverService.acceptPost(id,postId);
     }
@@ -30,39 +30,19 @@ public class RecieverController {
         return recieverService.updateDetails(id,recieverDto);
     }
 
-    @PatchMapping("/{id}/updateName")
-    public RecieverDto updateName(@PathVariable Integer id,@RequestBody String name){
-        return recieverService.updateName(id,name);
-    }
-
-    @PatchMapping("/{id}/updateOrganization")
-    public RecieverDto updateOrganization(@PathVariable Integer id,@RequestBody String organization){
-        return recieverService.updateOrganization(id,organization);
-    }
-
-    @PatchMapping("/{id}/updateAddress")
-    public RecieverDto  updateAddress(@PathVariable Integer id,@RequestBody String address){
-        return recieverService.updateAddress(id,address);
-    }
-
-    @PatchMapping("/{id}/updatePhoneNumber")
-    public RecieverDto  updatePhoneNumber(@PathVariable Integer id,@RequestBody String number){
-        return recieverService.updatePhoneNumber(id,number);
-    }
-
-    @PatchMapping("/{id}/updateEmail")
-    public RecieverDto  updateEmail(@PathVariable Integer id,@RequestBody String email){
-        return recieverService.updateEmail(id,email);
-    }
-
     @GetMapping("/{id}")
     public RecieverDto getRecieverDetails(@PathVariable Integer id){
         return recieverService.getRecieverDetails(id);
     }
 
-    @GetMapping("/{id}/getPostsBasedOnLocation")
+    @PostMapping("/{id}/getPostsBasedOnLocation")
     public List<PostDto> getPostsBasedOnLocation(@PathVariable Integer id, @RequestBody LocationDto locationDto){
         return recieverService.getAllPostsBasedOnLocation(id,locationDto);
+    }
+
+    @GetMapping("/{id}/getAcceptedPosts")
+    public List<PostDto> getAcceptedPosts(@PathVariable Integer id){
+        return recieverService.getAllAcceptedPosts(id);
     }
 
     @DeleteMapping("/{id}/delete")

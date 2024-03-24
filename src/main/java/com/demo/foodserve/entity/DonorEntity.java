@@ -20,6 +20,7 @@ public class DonorEntity {
     @Column(name = "donor_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer donor_Id;
+    private String userName;
     private Date registeredDate;
     private String name;
     private String organization;

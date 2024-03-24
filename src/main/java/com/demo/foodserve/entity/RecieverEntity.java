@@ -20,6 +20,7 @@ public class RecieverEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer reciever_id;
     private String name;
+    private String userName;
     private String organization;
     private Date registeredDate;
     private String phoneNumber;

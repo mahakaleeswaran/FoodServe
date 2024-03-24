@@ -10,7 +10,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 public class DonorDto {
+    private Integer id;
     private String name;
+    private String username;
     private String organization;
     private List<PostDto> posts;
     private String phoneNumber;

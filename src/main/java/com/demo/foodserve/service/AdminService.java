@@ -1,15 +1,16 @@
 package com.demo.foodserve.service;
-import com.demo.foodserve.Repository.DonorRepository;
-import com.demo.foodserve.Repository.LocationRepository;
-import com.demo.foodserve.Repository.PostRepository;
-import com.demo.foodserve.Repository.RecieverRespository;
+import com.demo.foodserve.Repository.*;
 import com.demo.foodserve.dto.*;
+import com.demo.foodserve.entity.CredentialsEntity;
+import com.demo.foodserve.entity.FeedBackEntity;
+import com.demo.foodserve.entity.FoodEntity;
 import com.demo.foodserve.entity.LocationEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AdminService {
@@ -24,6 +25,12 @@ public class AdminService {
     private RecieverRespository recieverRespository;
     @Autowired
     private RecieverService recieverService;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
+    @Autowired
+    private FeedBackRepository feedBackRepository;
+    @Autowired
+    private FoodRepository foodRepository;
 
     public List<PostDto> getCreatedPostsForSpecificRange(Date startDate, Date endDate) {
         return postRepository.findAllByCreatedDateBetween(startDate, endDate).stream()
@@ -80,7 +87,7 @@ public class AdminService {
 
     public List<RecieverDto> getAllRecieversBasedOnLocation(LocationDto locationDto) {
         LocationEntity locationEntity = LocationEntity.builder()
-                .location_id(locationDto.getLocation_id())
+                .location_id(locationDto.getLocationId())
                 .doorNo(locationDto.getDoorNo())
                 .street(locationDto.getStreet())
                 .area(locationDto.getArea())
@@ -120,4 +127,39 @@ public class AdminService {
                 .toList();
     }
 
+    public String register(CredentialsDto credentialsDto) {
+        CredentialsEntity credentialsEntity = credentialsRepository.save(CredentialsEntity.builder().userName(credentialsDto.getUsername()).confirmPassword(credentialsDto.getConfirmPassword()).userRole(credentialsDto.getUserRole()).build());
+        return  credentialsEntity.getUserName();
+    }
+
+    public List<CredentialsDto> getAllAccounts() {
+        return credentialsRepository.findAll().stream().map((credentials)->CredentialsDto.builder().username(credentials.getUserName()).confirmPassword(credentials.getConfirmPassword()).userRole(credentials.getUserRole()).build()).toList();
+    }
+
+    public FeedBackDto postFeedBack(FeedBackDto feedBackDto) {
+        feedBackRepository.save(FeedBackEntity.builder().feedBack(feedBackDto.getFeedBack()).build());
+        return feedBackDto;
+    }
+
+
+    public List<FeedBackDto> getAllFeedBackDto() {
+        return feedBackRepository.findAll().stream().map((feed)->FeedBackDto.builder().feedBack(feed.getFeedBack()).build()).toList();
+    }
+
+    public CountDto getAllCount() {
+        List<FoodEntity> foodItems =foodRepository.findAll();
+        Double totalQuantity = foodItems.stream()
+                .mapToDouble(FoodEntity::getQuantity)
+                .sum();
+        return CountDto.builder().donorsCount(donorRepository.findAll().size()).recieversCount(recieverRespository.findAll().size()).foodCount(totalQuantity/2.0).build();
+    }
+
+    public LoginDto getUserId(LoginDto loginDto) {
+        if(Objects.equals(loginDto.getUserRole(), "donor")){
+            loginDto.setUserId(donorRepository.findByUserName(loginDto.getUsername()).getDonor_Id());
+        } else{
+            loginDto.setUserId(recieverRespository.findByUserName(loginDto.getUsername()).getReciever_id());
+        }
+        return loginDto;
+    }
 }

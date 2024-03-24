@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DonorRepository extends JpaRepository<DonorEntity,Integer> {
+    DonorEntity findByUserName(String userName);
 }

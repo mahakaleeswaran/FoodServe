@@ -9,6 +9,8 @@ import com.demo.foodserve.entity.RecieverEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Component
 public class RecieverService {
@@ -25,7 +27,7 @@ public class RecieverService {
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
         Date date = new Date();
-        recieverRepository.save(RecieverEntity.builder().registeredDate(date).location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
+        recieverRepository.save(RecieverEntity.builder().userName(recieverDto.getUsername()).registeredDate(date).location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
         return recieverDto;
     }
 
@@ -37,7 +39,8 @@ public class RecieverService {
 
     public PostDto acceptPost(Integer id, Integer postId) {
         PostEntity postEntity = postRepository.findById(postId).orElse(null);
-        postEntity.setReciever_id(id);
+        assert postEntity != null;
+        postEntity.setReciever(recieverRepository.findById(id).orElse(new RecieverEntity()));
         Date date=new Date();
         postEntity.setAcceptedDate(date);
         postEntity.setServed(true);
@@ -60,48 +63,67 @@ public class RecieverService {
         return getRecieverDetails(id);
     }
 
-    public RecieverDto updateName(Integer id, String name) {
-        RecieverEntity recieverEntity=recieverRepository.findById(id).orElse(new RecieverEntity());
-        recieverEntity.setName(name);
-        recieverRepository.save(recieverEntity);
-        return getRecieverDetails(id);
-    }
-
-    public RecieverDto updateAddress(Integer id, String updateaddress) {
-        RecieverEntity recieverEntity=recieverRepository.findById(id).orElse(new RecieverEntity());
-        String[] address=updateaddress.split(",");
-        LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
-        locationRepository.save(locationEntity);
-        recieverEntity.setLocation(locationEntity);
-        recieverRepository.save(recieverEntity);
-        return getRecieverDetails(id);
-    }
-
-    public RecieverDto updatePhoneNumber(Integer id, String number) {
-        RecieverEntity recieverEntity=recieverRepository.findById(id).orElse(new RecieverEntity());
-        recieverEntity.setPhoneNumber(number);
-        recieverRepository.save(recieverEntity);
-        return getRecieverDetails(id);
-    }
-
-    public RecieverDto updateOrganization(Integer id, String organization) {
-        RecieverEntity recieverEntity=recieverRepository.findById(id).orElse(new RecieverEntity());
-        recieverEntity.setOrganization(organization);
-        recieverRepository.save(recieverEntity);
-        return getRecieverDetails(id);
-    }
-
-    public RecieverDto updateEmail(Integer id, String email) {
-        RecieverEntity recieverEntity=recieverRepository.findById(id).orElse(new RecieverEntity());
-        recieverEntity.setEmail(email);
-        recieverRepository.save(recieverEntity);
-        return getRecieverDetails(id);
-    }
 
     public RecieverDto deleteReciever(Integer id) {
         RecieverDto recieverDto=getRecieverDetails(id);
         recieverRepository.deleteById(id);
         return recieverDto;
+    }
+
+    public List<PostDto> getAllPostsBasedOnLocation(Integer id,LocationDto locationDto) {
+        LocationEntity locationEntity = LocationEntity.builder()
+                .location_id(locationDto.getLocationId())
+                .doorNo(locationDto.getDoorNo())
+                .street(locationDto.getStreet())
+                .area(locationDto.getArea())
+                .town(locationDto.getTown())
+                .district(locationDto.getDistrict())
+                .state(locationDto.getState())
+                .zipcode(locationDto.getZipcode())
+                .build();
+        return postRepository.findAll()
+                .stream().filter((postEntity)-> !postEntity.getServed())
+                .filter(postEntity -> {
+                    if (locationEntity.getLocation_id() != null && !locationEntity.getLocation_id().equals(postEntity.getLocation().getLocation_id())) {
+                        return false;
+                    }
+                    if (locationEntity.getDoorNo() != null && !locationEntity.getDoorNo().equals(postEntity.getLocation().getDoorNo())) {
+                        return false;
+                    }
+                    if (locationEntity.getStreet() != null && !locationEntity.getStreet().equals(postEntity.getLocation().getStreet())) {
+                        return false;
+                    }
+                    if (locationEntity.getArea() != null && !locationEntity.getArea().equals(postEntity.getLocation().getArea())) {
+                        return false;
+                    }
+                    if (locationEntity.getTown() != null && !locationEntity.getTown().equals(postEntity.getLocation().getTown())) {
+                        return false;
+                    }
+                    if (locationEntity.getDistrict() != null && !locationEntity.getDistrict().equals(postEntity.getLocation().getDistrict())) {
+                        return false;
+                    }
+                    if (locationEntity.getState() != null && !locationEntity.getState().equals(postEntity.getLocation().getState())) {
+                        return false;
+                    }
+                    return locationEntity.getZipcode() == null || locationEntity.getZipcode().equals(postEntity.getLocation().getZipcode());
+                })
+                .map(post -> PostDto.builder().id(post.getPostId()).donorEmail(post.getDonor().getEmail()).donorName(post.getDonor().getName()).donorPhoneNumber(post.getDonor().getPhoneNumber()).location(post.getLocation().getDoorNo()+","+post.getLocation().getStreet()+","+post.getLocation().getArea()+","+post.getLocation().getTown()+","+post.getLocation().getDistrict()+","+post.getLocation().getState()+","+post.getLocation().getZipcode()).served(post.getServed()).posts(post.getFoodEntities().stream().map((food)-> FoodDto.builder().foodName(food.getFoodName()).quantity(food.getQuantity()).build()).toList()).build()).toList();
+    }
+
+    public List<PostDto> getAllAcceptedPosts(Integer id) {
+        return postRepository.findAll().stream()
+                .filter(post -> post.getReciever() != null && Objects.equals(post.getReciever().getReciever_id(), id))
+                .map(post -> PostDto.builder().donorEmail(post.getDonor().getEmail()).donorName(post.getDonor().getName()).donorPhoneNumber(post.getDonor().getPhoneNumber())
+                        .id(post.getPostId())
+                        .location(post.getLocation().getDoorNo() + "," + post.getLocation().getStreet() + "," + post.getLocation().getArea() + "," +
+                                post.getLocation().getTown() + "," + post.getLocation().getDistrict() + "," + post.getLocation().getState() + "," +
+                                post.getLocation().getZipcode())
+                        .served(post.getServed())
+                        .posts(post.getFoodEntities().stream()
+                                .map(food -> FoodDto.builder().foodName(food.getFoodName()).quantity(food.getQuantity()).build())
+                                .toList())
+                        .build())
+                .toList();
     }
 
 }
