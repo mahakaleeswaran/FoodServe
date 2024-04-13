@@ -27,11 +27,11 @@ public class DonorService {
         String[] address=donorDto.getAddress().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
-        coordinatesRepository.save(CoordinateEntity.builder().latitude(donorDto.getLatitude()).longitude(donorDto.getLongitude()).location(locationEntity).build());
         Date date = new Date();
         DonorEntity donorEntity = donorRepository.save(DonorEntity.builder().userName(donorDto.getUsername()).registeredDate(date).name(donorDto.getName()).email(donorDto.getEmail()).organization(donorDto.getOrganization()).location(locationEntity).phoneNumber(donorDto.getPhoneNumber()).build());
         donorDto.setUsername(donorEntity.getUserName());
         donorDto.setId(donorEntity.getDonor_Id());
+        coordinatesRepository.save(CoordinateEntity.builder().latitude(donorDto.getLatitude()).longitude(donorDto.getLongitude()).location(locationEntity).id(donorEntity.getDonor_Id()).type("DONOR").build());
         return donorDto;
     }
 
@@ -78,10 +78,10 @@ public class DonorService {
         String[] address=postdto.getLocation().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
-        coordinatesRepository.save(CoordinateEntity.builder().latitude(postdto.getLatitude()).longitude(postdto.getLongitude()).location(locationEntity).build());
         Date date = new Date();
         PostEntity postEntity = postRepository.save(PostEntity.builder().createdDate(date).location(locationEntity).receiver(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor(donorEntity).build());
         foodRepository.saveAll(postdto.getPosts().stream().map((post)-> FoodEntity.builder().post_Id(postEntity.getPostId()).foodName(post.getFoodName()).quantity(post.getQuantity()).build()).toList());
+        coordinatesRepository.save(CoordinateEntity.builder().latitude(postdto.getLatitude()).longitude(postdto.getLongitude()).location(locationEntity).id(postEntity.getPostId()).type("POST").build());
         return postdto;
     }
 

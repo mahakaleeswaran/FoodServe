@@ -21,4 +21,6 @@ public class CoordinateEntity {
     @OneToOne
     @JoinColumn(name = "location_id")
     private LocationEntity location;
+    private Integer id;
+    private String type;
 }

@@ -29,9 +29,9 @@ public class RecieverService {
         String[] address=recieverDto.getAddress().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
-        coordinatesRepository.save(CoordinateEntity.builder().latitude(recieverDto.getLatitude()).longitude(recieverDto.getLongitude()).location(locationEntity).build());
         Date date = new Date();
-        recieverRepository.save(RecieverEntity.builder().userName(recieverDto.getUsername()).registeredDate(date).location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
+        RecieverEntity recieverEntity = recieverRepository.save(RecieverEntity.builder().userName(recieverDto.getUsername()).registeredDate(date).location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
+        coordinatesRepository.save(CoordinateEntity.builder().latitude(recieverDto.getLatitude()).longitude(recieverDto.getLongitude()).location(locationEntity).id(recieverEntity.getReciever_id()).type("RECEIVER").build());
         return recieverDto;
     }
 
