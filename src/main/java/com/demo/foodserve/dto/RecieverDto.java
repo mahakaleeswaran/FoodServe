@@ -18,4 +18,6 @@ public class RecieverDto {
     private String phoneNumber;
     private String email;
     private String address;
+    private Double latitude;
+    private Double longitude;
 }

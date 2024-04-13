@@ -1,9 +1,6 @@
 package com.demo.foodserve.service;
 
-import com.demo.foodserve.Repository.DonorRepository;
-import com.demo.foodserve.Repository.FoodRepository;
-import com.demo.foodserve.Repository.LocationRepository;
-import com.demo.foodserve.Repository.PostRepository;
+import com.demo.foodserve.Repository.*;
 import com.demo.foodserve.dto.DonorDto;
 import com.demo.foodserve.dto.FoodDto;
 import com.demo.foodserve.dto.PostDto;
@@ -23,11 +20,14 @@ public class DonorService {
     private FoodRepository foodRepository;
     @Autowired
     private LocationRepository locationRepository;
+    @Autowired
+    private CoordinatesRepository coordinatesRepository;
 
     public DonorDto register(DonorDto donorDto) {
         String[] address=donorDto.getAddress().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
+        coordinatesRepository.save(CoordinateEntity.builder().latitude(donorDto.getLatitude()).longitude(donorDto.getLongitude()).location(locationEntity).build());
         Date date = new Date();
         DonorEntity donorEntity = donorRepository.save(DonorEntity.builder().userName(donorDto.getUsername()).registeredDate(date).name(donorDto.getName()).email(donorDto.getEmail()).organization(donorDto.getOrganization()).location(locationEntity).phoneNumber(donorDto.getPhoneNumber()).build());
         donorDto.setUsername(donorEntity.getUserName());
@@ -50,7 +50,7 @@ public class DonorService {
                 .organization(donorEntity.getOrganization())
                 .posts(donorEntity.getPostEntity().stream()
                         .map(post -> {
-                            RecieverEntity receiver = post.getReciever();
+                            RecieverEntity receiver = post.getReceiver();
                             if (receiver == null) {
                                 receiver = new RecieverEntity();
                             }
@@ -78,8 +78,9 @@ public class DonorService {
         String[] address=postdto.getLocation().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
+        coordinatesRepository.save(CoordinateEntity.builder().latitude(postdto.getLatitude()).longitude(postdto.getLongitude()).location(locationEntity).build());
         Date date = new Date();
-        PostEntity postEntity = postRepository.save(PostEntity.builder().createdDate(date).location(locationEntity).reciever(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor(donorEntity).build());
+        PostEntity postEntity = postRepository.save(PostEntity.builder().createdDate(date).location(locationEntity).receiver(null).email(donorEntity.getEmail()).phoneNumber(donorEntity.getPhoneNumber()).served(false).donor(donorEntity).build());
         foodRepository.saveAll(postdto.getPosts().stream().map((post)-> FoodEntity.builder().post_Id(postEntity.getPostId()).foodName(post.getFoodName()).quantity(post.getQuantity()).build()).toList());
         return postdto;
     }

@@ -24,4 +24,6 @@ public class PostDto {
     private Date createdDate;
     private String location;
     private Boolean served;
+    private Double latitude;
+    private Double longitude;
 }

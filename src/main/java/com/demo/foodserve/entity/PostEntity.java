@@ -29,12 +29,12 @@ public class PostEntity {
     private Date acceptedDate;
     private String phoneNumber;
     private String email;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "donor_id")
     private DonorEntity donor;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "reciever_Id")
-    private RecieverEntity reciever;
+    private RecieverEntity receiver;
     @OneToMany
     @JoinColumn(name = "post_id")
     private List<FoodEntity> foodEntities;

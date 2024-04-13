@@ -1,4 +1,5 @@
 package com.demo.foodserve.service;
+import com.demo.foodserve.Repository.CoordinatesRepository;
 import com.demo.foodserve.Repository.LocationRepository;
 import com.demo.foodserve.Repository.PostRepository;
 import com.demo.foodserve.Repository.RecieverRespository;
@@ -21,11 +22,14 @@ public class RecieverService {
     private PostRepository postRepository;
     @Autowired
     private LocationRepository locationRepository;
+    @Autowired
+    private CoordinatesRepository coordinatesRepository;
 
     public RecieverDto register(RecieverDto recieverDto) {
         String[] address=recieverDto.getAddress().split(",");
         LocationEntity locationEntity=LocationEntity.builder().doorNo(address[0]).street(address[1]).area(address[2]).town(address[3]).district(address[4]).state(address[5]).zipcode(address[6]).build();
         locationRepository.save(locationEntity);
+        coordinatesRepository.save(CoordinateEntity.builder().latitude(recieverDto.getLatitude()).longitude(recieverDto.getLongitude()).location(locationEntity).build());
         Date date = new Date();
         recieverRepository.save(RecieverEntity.builder().userName(recieverDto.getUsername()).registeredDate(date).location(locationEntity).email(recieverDto.getEmail()).name(recieverDto.getName()).organization(recieverDto.getOrganization()).phoneNumber(recieverDto.getPhoneNumber()).build());
         return recieverDto;
@@ -40,7 +44,7 @@ public class RecieverService {
     public PostDto acceptPost(Integer id, Integer postId) {
         PostEntity postEntity = postRepository.findById(postId).orElse(null);
         assert postEntity != null;
-        postEntity.setReciever(recieverRepository.findById(id).orElse(new RecieverEntity()));
+        postEntity.setReceiver(recieverRepository.findById(id).orElse(new RecieverEntity()));
         Date date=new Date();
         postEntity.setAcceptedDate(date);
         postEntity.setServed(true);
@@ -112,7 +116,7 @@ public class RecieverService {
 
     public List<PostDto> getAllAcceptedPosts(Integer id) {
         return postRepository.findAll().stream()
-                .filter(post -> post.getReciever() != null && Objects.equals(post.getReciever().getReciever_id(), id))
+                .filter(post -> post.getReceiver() != null && Objects.equals(post.getReceiver().getReciever_id(), id))
                 .map(post -> PostDto.builder().donorEmail(post.getDonor().getEmail()).donorName(post.getDonor().getName()).donorPhoneNumber(post.getDonor().getPhoneNumber())
                         .id(post.getPostId())
                         .location(post.getLocation().getDoorNo() + "," + post.getLocation().getStreet() + "," + post.getLocation().getArea() + "," +
